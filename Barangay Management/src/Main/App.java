@@ -13,6 +13,7 @@ public class App extends AppPanel{
         apppanel.setBackground(Color.BLACK);
         apppanel.add(lefttoppanel, BorderLayout.WEST);
         apppanel.add(mainpanel, BorderLayout.CENTER);
+
         appframe = new AppFrame(apppanel);
     }
 }

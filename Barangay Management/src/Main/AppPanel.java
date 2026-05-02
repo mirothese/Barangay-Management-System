@@ -3,7 +3,7 @@ package Main;
 import java.awt.*;
 import javax.swing.*;
 import Features.*;
-import inputs.*;
+import Source.*;
 
 import javax.swing.JPanel;
 

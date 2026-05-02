@@ -6,6 +6,8 @@ import javax.swing.JFrame;
 
 public class AppFrame {
 
+    ImageIcon icon = new ImageIcon("icon.png");
+
     public AppFrame(AppPanel apppanel){
 
         JFrame jframe = new JFrame("Barangay Management");
@@ -15,6 +17,7 @@ public class AppFrame {
         jframe.setResizable(false);
         jframe.pack();
         jframe.setLocationRelativeTo(null);
+        jframe.setIconImage(icon.getImage());
         jframe.setVisible(true);
 
     }
