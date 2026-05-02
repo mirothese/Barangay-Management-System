@@ -1,158 +1,254 @@
 package Features;
 
 import java.io.*;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.Font;
-import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-public class RBI extends JPanel{
+public class RBI extends JPanel {
 
-    public String firstName, middleName, lastName, birth, age, sex, civilStatus, contactNumber,houseNumber, occupation;
+    // --- Data Fields ---
+    // In a real app, use a Resident class instead of individual strings
+    private String firstName, middleName, lastName, birth, age, sex, civilStatus, contactNumber, houseNumber, occupation;
 
-    Color color1 = new Color(204, 218, 227);
-    Font myFont = new Font("Arial", Font.BOLD, 60);
+    // --- UI Components ---
+    private Color color1 = new Color(204, 218, 227);
+    private Font titleFont = new Font("Arial", Font.BOLD, 40); // Reduced size slightly for better fit
+    private Font labelFont = new Font("Arial", Font.PLAIN, 14);
+    private Font inputFont = new Font("Arial", Font.PLAIN, 14);
 
-    JLabel title = new JLabel("<html><center>Residence of<br>Barangay Inhabitants</center></html>");
+    // Main Card Layout Container
+    private JPanel cardContainer;
+    private CardLayout cardLayout;
 
-    JTextArea residences = new JTextArea();
-    JTextArea blank1 = new JTextArea();
+    // Card 1: The List View (Your original top_botPanel content)
+    private JPanel listPanel;
+    private JTextArea residences;
+    private JScrollPane residenceList;
+    private JButton btnNewResidence;
 
-    JButton newResidenceButton = new JButton();
+    // Card 2: The Form View (Replaces JOptionPane)
+    private JPanel formPanel;
+    private JTextField tfFirstName, tfMiddleName, tfLastName, tfBirth, tfAge, tfSex, tfCivilStatus, tfContact, tfHouse, tfOccupation;
+    private JButton btnSave, btnCancel;
 
-    JScrollPane residenceList = new JScrollPane(residences);
+    public RBI() {
+        // Initialize Layout
+        cardLayout = new CardLayout();
+        cardContainer = new JPanel(cardLayout);
+        cardContainer.setBackground(color1);
 
-    JPanel appointPanel = new JPanel();
-    JPanel topPanel = new JPanel();
-    JPanel botPanel = new JPanel();
-    JPanel top_botPanel = new JPanel();
-    JPanel bot_botPanel = new JPanel();
-    JPanel buttons_bot_botPanel = new JPanel();
+        // Build the two "Cards"
+        buildListPanel();
+        buildFormPanel();
 
-    JOptionPane inputPane = new JOptionPane();
+        // Add cards to container
+        cardContainer.add(listPanel, "LIST");
+        cardContainer.add(formPanel, "FORM");
 
-    public void updateResidenceLists(){
-        try (BufferedReader reader = new BufferedReader(new FileReader("src\\RBI\\RBIdata.dat"))){
-            String line;
-            while((line = reader.readLine()) != null){
-                System.out.println(line);
-                residences.append(line+"\n");
-            }
-            reader.close();
-        } catch (FileNotFoundException e){
-            System.out.println("Could not locate file location");
-        }
-        catch (IOException e) {
-            System.out.println("Could not write file");
-        }
-    }
+        // Add container to this RBI panel
+        setLayout(new BorderLayout());
+        add(cardContainer, BorderLayout.CENTER);
 
-    public void updateDisplay(){
-        appointPanel.revalidate();
-        appointPanel.repaint();
-    }
-
-    public void click(JButton btn){
-        inputPane.setIcon(null);
-        firstName =     inputPane.showInputDialog("First name: ");
-        middleName =    inputPane.showInputDialog("Middle Name: ");
-        lastName =      inputPane.showInputDialog("Last Name: ");
-        birth =         inputPane.showInputDialog("Date of Birth:");
-        age =           inputPane.showInputDialog("Age: ");
-        sex =           inputPane.showInputDialog("Sex: ");
-        civilStatus =   inputPane.showInputDialog("Civil Status: ");
-        contactNumber = inputPane.showInputDialog("Contact Number: ");
-        houseNumber =   inputPane.showInputDialog("House Number: ");
-        occupation =    inputPane.showInputDialog("Occupation: ");
-
-        try {
-            BufferedWriter RBIdata = new BufferedWriter(new FileWriter("src\\RBI\\RBIdata.dat", true));
-            RBIdata.append("First Name:\t\t").append(firstName).append("\n");
-            RBIdata.append("Middle Name:\t\t").append(middleName).append("\n");
-            RBIdata.append("Last Name:\t\t").append(lastName).append("\n");
-            RBIdata.append("Birth Date:\t\t").append(birth).append("\n");
-            RBIdata.append("Age:\t\t").append(age).append("\n");
-            RBIdata.append("Sex:\t\t").append(sex).append("\n");
-            RBIdata.append("Civil Status:\t\t").append(civilStatus).append("\n");
-            RBIdata.append("Contact Number:\t").append(contactNumber).append("\n");
-            RBIdata.append("House Number:\t").append(houseNumber).append("\n");
-            RBIdata.append("Occupation:\t\t").append(occupation).append("\n");
-
-            RBIdata.close();
-        } catch (IOException e) {
-            System.out.println("Could not write file");
-        }
-
+        // Initial load
         updateResidenceLists();
-
-        updateDisplay();
     }
 
-    public void Visuals(){
-        appointPanel.setLayout(new BorderLayout());
+    private void buildListPanel() {
+        listPanel = new JPanel(new BorderLayout());
+        listPanel.setBackground(color1);
 
-        title.setFont(myFont);
+        // Title
+        JLabel title = new JLabel("<html><center>Residence of<br>Barangay Inhabitants</center></html>");
+        title.setFont(titleFont);
         title.setHorizontalAlignment(SwingConstants.CENTER);
-        title.setPreferredSize(new Dimension(0,0));
+        title.setPreferredSize(new Dimension(0, 100));
+        title.setOpaque(true);
+        title.setBackground(color1);
 
-        topPanel.setLayout(new BorderLayout());
-        topPanel.setBackground(color1);
-        topPanel.add(title);
-        topPanel.setPreferredSize(new Dimension(0, 150));
-
-        newResidenceButton.setText("New Resident");
-        newResidenceButton.setFont(new Font("Arial", Font.BOLD, 25));
-        newResidenceButton.setPreferredSize(new Dimension(200,70));
-        newResidenceButton.setBorder(BorderFactory.createRaisedBevelBorder());
-        newResidenceButton.setFocusPainted(false);
-        newResidenceButton.addActionListener(e -> click(newResidenceButton));
-
-        blank1.setBackground(color1);
-        blank1.setBorder(BorderFactory.createEmptyBorder());
-        blank1.setPreferredSize(new Dimension(685,0));
-
-        buttons_bot_botPanel.setLayout(new FlowLayout(FlowLayout.LEADING, 23,15));
-        buttons_bot_botPanel.setBackground(color1);
-        buttons_bot_botPanel.add(newResidenceButton);
-        buttons_bot_botPanel.add(blank1);
-
-        residences.setFont(new Font("Arial", Font.BOLD, 25));
+        // List Area
+        residences = new JTextArea();
+        residences.setFont(new Font("Arial", Font.PLAIN, 14));
         residences.setLineWrap(true);
-        residenceList.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        residenceList.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        residences.setEditable(false);
+        residenceList = new JScrollPane(residences);
+        residenceList.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 
-        top_botPanel.setLayout(new BorderLayout());
-        top_botPanel.setBackground(color1);
-        top_botPanel.setBorder(BorderFactory.createLineBorder(Color.black,2));
-        top_botPanel.setPreferredSize(new Dimension(900,450));
-        top_botPanel.add(residenceList);
+        // Button Area
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 10));
+        btnPanel.setBackground(color1);
 
-        updateResidenceLists();
+        btnNewResidence = new JButton("New Resident");
+        btnNewResidence.setFont(new Font("Arial", Font.BOLD, 16));
+        btnNewResidence.setPreferredSize(new Dimension(200, 50));
+        btnNewResidence.addActionListener(e -> {
+            // Switch to Form Card
+            cardLayout.show(cardContainer, "FORM");
+            // Clear form
+            clearForm();
+            // Focus first field
+            tfFirstName.requestFocus();
+        });
 
-        bot_botPanel.setLayout(new BorderLayout());
-        bot_botPanel.setBackground(color1);
-        bot_botPanel.setPreferredSize(new Dimension(0,90));
+        btnPanel.add(btnNewResidence);
+        btnPanel.add(new JLabel("   ")); // Spacer
 
-        botPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-        botPanel.setBackground(color1);
-        botPanel.add(top_botPanel);
-        botPanel.add(bot_botPanel);
-        botPanel.add(buttons_bot_botPanel);
-        botPanel.setPreferredSize(new Dimension(0, 0));
-
-        appointPanel.add(topPanel, BorderLayout.NORTH);
-        appointPanel.add(botPanel, BorderLayout.CENTER);
-
-        appointPanel.setVisible(true);
-        this.setLayout(new BorderLayout());
-        this.add(appointPanel);
+        listPanel.add(title, BorderLayout.NORTH);
+        listPanel.add(residenceList, BorderLayout.CENTER);
+        listPanel.add(btnPanel, BorderLayout.SOUTH);
     }
 
-    public RBI(){
-        Visuals();
+    private void buildFormPanel() {
+        formPanel = new JPanel(new GridBagLayout());
+        formPanel.setBackground(color1);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+
+        // Helper to add label and field
+        java.util.function.BiConsumer<String, JTextField> addField = (labelText, field) -> {
+            JLabel label = new JLabel(labelText + ":");
+            label.setFont(labelFont);
+            field.setFont(inputFont);
+            field.setPreferredSize(new Dimension(300, 30));
+
+            gbc.gridx = 0;
+            formPanel.add(label, gbc);
+            gbc.gridx = 1;
+            formPanel.add(field, gbc);
+            gbc.gridx = 0;
+            gbc.gridy++;
+        };
+
+        // Initialize Fields
+        tfFirstName = new JTextField();
+        tfMiddleName = new JTextField();
+        tfLastName = new JTextField();
+        tfBirth = new JTextField();
+        tfAge = new JTextField();
+        tfSex = new JTextField();
+        tfCivilStatus = new JTextField();
+        tfContact = new JTextField();
+        tfHouse = new JTextField();
+        tfOccupation = new JTextField();
+
+        // Add Fields
+        addField.accept("First Name", tfFirstName);
+        addField.accept("Middle Name", tfMiddleName);
+        addField.accept("Last Name", tfLastName);
+        addField.accept("Date of Birth", tfBirth);
+        addField.accept("Age", tfAge);
+        addField.accept("Sex", tfSex);
+        addField.accept("Civil Status", tfCivilStatus);
+        addField.accept("Contact Number", tfContact);
+        addField.accept("House Number", tfHouse);
+        addField.accept("Occupation", tfOccupation);
+
+        // Action Buttons
+        JPanel btnRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 20));
+        btnRow.setBackground(color1);
+
+        btnSave = new JButton("Save Resident");
+        btnSave.setFont(new Font("Arial", Font.BOLD, 14));
+        btnSave.addActionListener(e -> saveResident());
+
+        btnCancel = new JButton("Cancel");
+        btnCancel.setFont(new Font("Arial", Font.BOLD, 14));
+        btnCancel.addActionListener(e -> {
+            cardLayout.show(cardContainer, "LIST");
+        });
+
+        btnRow.add(btnSave);
+        btnRow.add(btnCancel);
+
+        // Layout adjustment for buttons
+        gbc.gridy++;
+        gbc.gridx = 0;
+        gbc.gridwidth = 2;
+        formPanel.add(btnRow, gbc);
+    }
+
+    private void saveResident() {
+        // Validate inputs (simple check)
+        if (tfFirstName.getText().isEmpty() || tfLastName.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "First and Last Name are required.", "Validation Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Assign to fields (simulating your old logic)
+        firstName = tfFirstName.getText();
+        middleName = tfMiddleName.getText();
+        lastName = tfLastName.getText();
+        birth = tfBirth.getText();
+        age = tfAge.getText();
+        sex = tfSex.getText();
+        civilStatus = tfCivilStatus.getText();
+        contactNumber = tfContact.getText();
+        houseNumber = tfHouse.getText();
+        occupation = tfOccupation.getText();
+
+        try (BufferedWriter RBIdata = new BufferedWriter(new FileWriter("src/RBI/RBIdata.dat", true))) {
+            RBIdata.write("First Name:\t\t" + firstName + "\n");
+            RBIdata.write("Middle Name:\t\t" + middleName + "\n");
+            RBIdata.write("Last Name:\t\t" + lastName + "\n");
+            RBIdata.write("Birth Date:\t\t" + birth + "\n");
+            RBIdata.write("Age:\t\t" + age + "\n");
+            RBIdata.write("Sex:\t\t" + sex + "\n");
+            RBIdata.write("Civil Status:\t\t" + civilStatus + "\n");
+            RBIdata.write("Contact Number:\t" + contactNumber + "\n");
+            RBIdata.write("House Number:\t" + houseNumber + "\n");
+            RBIdata.write("Occupation:\t\t" + occupation + "\n");
+            RBIdata.write("--------------------------------------------------\n"); // Separator
+
+            JOptionPane.showMessageDialog(this, "Resident saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+            // Switch back to list
+            cardLayout.show(cardContainer, "LIST");
+            updateResidenceLists();
+            clearForm();
+
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error writing to file: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
+    private void clearForm() {
+        tfFirstName.setText("");
+        tfMiddleName.setText("");
+        tfLastName.setText("");
+        tfBirth.setText("");
+        tfAge.setText("");
+        tfSex.setText("");
+        tfCivilStatus.setText("");
+        tfContact.setText("");
+        tfHouse.setText("");
+        tfOccupation.setText("");
+    }
+
+    public void updateResidenceLists() {
+        residences.setText(""); // Clear current text first
+        File file = new File("src/RBI/RBIdata.dat");
+
+        if (!file.exists()) {
+            residences.setText("No records found.");
+            return;
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                residences.append(line + "\n");
+            }
+        } catch (FileNotFoundException e) {
+            residences.setText("Error: Could not find data file.");
+        } catch (IOException e) {
+            residences.setText("Error: Could not read data file.");
+        }
     }
 }

@@ -9,27 +9,45 @@ import javax.swing.JPanel;
 
 public class AppPanel extends JPanel {
 
-    ScreenSize screenSize = new ScreenSize();
+    public ScreenSize screenSize = new ScreenSize();
+
+    public ImageIcon iconImage = new ImageIcon("iconMenu.png");
+
+    public Font myFont = new Font("Arial", Font.BOLD, 18);
+    public Font menuFont = new Font("Arial", Font.BOLD, 30);
+
+    public Color color1 = new Color(204, 218, 227);
 
     public JPanel leftpanel = new JPanel();
     public JPanel lefttoppanel = new JPanel();
     public JPanel leftbotpanel = new JPanel();
     public JPanel mainpanel = new JPanel();
+    public JPanel mainpanelText = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
-    Color color1 = new Color(204, 218, 227);
+    public JLabel iconMenu = new JLabel();
+    public JLabel iconText = new JLabel("BARANGAY MANAGEMENT SYSTEM");
 
-    JButton RBIButt = new JButton("<html><center>Records of<br>Barangay<br>Inhabitants</center></html>");
-    JButton SuppliesButt = new JButton("<html><center>Inventory of<br>Supplies</center></html>");
-    JButton EquipmentButt = new JButton("<html><center>Inventory of<br>Equipment</center></html>");
-    JButton ResolutionButt = new JButton("<html><center>Resolution<br>Tracking</center></html>");
-    JButton OrdinanceButt = new JButton("<html><center>Ordinance<br>Tracking</center></html>");
+    public JLabel menuTitle = new JLabel(
+            "<html><center>Barangay<br>Information<br>" +
+                                "Management<br>" +
+                                "System</center></html>");
 
-    JLabel menuTitle = new JLabel("<html><center>Barangay<br>Information<br>Management<br>System</center></html>");
-
-    public Font myFont = new Font("Arial", Font.BOLD, 18);
-    public Font menuFont = new Font("Arial", Font.BOLD, 30);
-
-
+    public JButton RBIButt = new JButton(
+            "<html><center>Records of<br>" +
+                                "Barangay<br>" +
+                                "Inhabitants</center></html>");
+    public JButton SuppliesButt = new JButton(
+            "<html><center>Inventory of<br>" +
+                                "Supplies</center></html>");
+    public JButton EquipmentButt = new JButton(
+            "<html><center>Inventory of<br>" +
+                                "Equipment</center></html>");
+    public JButton ResolutionButt = new JButton(
+            "<html><center>Resolution<br>" +
+                                "Tracking</center></html>");
+    public JButton OrdinanceButt = new JButton(
+            "<html><center>Ordinance<br>" +
+                                "Tracking</center></html>");
 
     public AppPanel(){
         setPanelSize();
@@ -57,8 +75,13 @@ public class AppPanel extends JPanel {
         lefttoppanel.add(menuTitle);
         lefttoppanel.add(Box.createVerticalStrut(240));
 
+        iconMenu.setIcon(iconImage);
+
+        mainpanelText.setBackground(color1);
+        mainpanelText.add(iconMenu);
+
         mainpanel.setLayout(new BorderLayout());
-        mainpanel.setBackground(color1);
+        mainpanel.add(mainpanelText, BorderLayout.CENTER);
     }
 
     public void AppLeftButtons(){
