@@ -11,7 +11,7 @@ public class App extends AppPanel{
         apppanel = new AppPanel();
         apppanel.setLayout(new BorderLayout(2,0));
         apppanel.setBackground(Color.BLACK);
-        apppanel.add(lefttoppanel, BorderLayout.WEST);
+        apppanel.add(leftpanel, BorderLayout.WEST);
         apppanel.add(mainpanel, BorderLayout.CENTER);
 
         appframe = new AppFrame(apppanel);

@@ -4,6 +4,7 @@ import java.awt.*;
 import javax.swing.*;
 import Features.*;
 import Source.*;
+import java.io.*;
 
 import javax.swing.JPanel;
 
@@ -17,6 +18,8 @@ public class AppPanel extends JPanel {
     public Font menuFont = new Font("Arial", Font.BOLD, 30);
 
     public Color color1 = new Color(204, 218, 227);
+    public Color color2 = new Color(30,30,30);
+    public Color color3 = Color.WHITE;
 
     public JPanel leftpanel = new JPanel();
     public JPanel lefttoppanel = new JPanel();
@@ -26,6 +29,7 @@ public class AppPanel extends JPanel {
 
     public JLabel iconMenu = new JLabel();
     public JLabel iconText = new JLabel("BARANGAY MANAGEMENT SYSTEM");
+    public JLabel regionTextArea = new JLabel("Region: None");
 
     public JLabel menuTitle = new JLabel(
             "<html><center>Barangay<br>Information<br>" +
@@ -36,21 +40,15 @@ public class AppPanel extends JPanel {
             "<html><center>Records of<br>" +
                                 "Barangay<br>" +
                                 "Inhabitants</center></html>");
-    public JButton SuppliesButt = new JButton(
-            "<html><center>Inventory of<br>" +
-                                "Supplies</center></html>");
-    public JButton EquipmentButt = new JButton(
-            "<html><center>Inventory of<br>" +
-                                "Equipment</center></html>");
-    public JButton ResolutionButt = new JButton(
-            "<html><center>Resolution<br>" +
-                                "Tracking</center></html>");
-    public JButton OrdinanceButt = new JButton(
-            "<html><center>Ordinance<br>" +
-                                "Tracking</center></html>");
+    public JButton DashButt = new JButton(
+            "<html><center>Dashboard</center></html>");
+    public JButton setRegionButt = new JButton("Set Region");
+
+    public File region = new File("src/Main/region.dat");
 
     public AppPanel(){
         setPanelSize();
+        setRegionText();
         AppLayout();
         AppLeftButtons();
     }
@@ -59,21 +57,24 @@ public class AppPanel extends JPanel {
 
         lefttoppanel.setPreferredSize(new Dimension(300,0));
         lefttoppanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-        lefttoppanel.setBackground(color1);
+        lefttoppanel.setBackground(color2);
 
-        leftbotpanel.setPreferredSize(new Dimension(0,0));
+        leftbotpanel.setPreferredSize(new Dimension(300,100));
         leftbotpanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-        leftbotpanel.setBackground(color1);;
+        leftbotpanel.setBackground(color2);
 
         leftpanel.setLayout(new BorderLayout());
         leftpanel.add(lefttoppanel, BorderLayout.CENTER);
         leftpanel.add(leftbotpanel, BorderLayout.SOUTH);
-        leftpanel.setBackground(color1);
+        leftpanel.setBackground(color2);
 
         menuTitle.setFont(menuFont);
+        menuTitle.setForeground(color3);
 
         lefttoppanel.add(menuTitle);
         lefttoppanel.add(Box.createVerticalStrut(240));
+
+        leftbotpanel.add(regionTextArea);
 
         iconMenu.setIcon(iconImage);
 
@@ -97,60 +98,62 @@ public class AppPanel extends JPanel {
             mainpanel.repaint();
         });
 
-        SuppliesButt.setBorder(BorderFactory.createRaisedBevelBorder());
-        SuppliesButt.setFocusPainted(false);
-        SuppliesButt.setPreferredSize(new Dimension(250,60));
-        SuppliesButt.setFont(myFont);
-        SuppliesButt.addActionListener(_ -> {
+        DashButt.setBorder(BorderFactory.createRaisedBevelBorder());
+        DashButt.setFocusPainted(false);
+        DashButt.setPreferredSize(new Dimension(250,40));
+        DashButt.setFont(myFont);
+        DashButt.addActionListener(_ -> {
             mainpanel.removeAll();
-            System.out.println("pressed supplies");
-            mainpanel.add(new InventoryOfSupplies());
+            System.out.println("pressed dashboard");
+            mainpanel.add(new Dashboard());
             mainpanel.revalidate();
             mainpanel.repaint();
         });
+        String regionInput;
+        setRegionButt.setBorder(BorderFactory.createRaisedBevelBorder());
+        setRegionButt.setFocusPainted(false);
+        setRegionButt.setPreferredSize(new Dimension(270, 40));
+        setRegionButt.setFont(myFont);
+        setRegionButt.addActionListener(e -> {
+            String inputDialog = JOptionPane.showInputDialog(this, "Enter Region:");
 
-        EquipmentButt.setBorder(BorderFactory.createRaisedBevelBorder());
-        EquipmentButt.setFocusPainted(false);
-        EquipmentButt.setPreferredSize(new Dimension(250,60));
-        EquipmentButt.setFont(myFont);
-        EquipmentButt.addActionListener(_ -> {
-            mainpanel.removeAll();
-            System.out.println("pressed equpiment");
-            mainpanel.add(new InventoryOfEquipment());
-            mainpanel.revalidate();
-            mainpanel.repaint();
-        });
-
-        ResolutionButt.setBorder(BorderFactory.createRaisedBevelBorder());
-        ResolutionButt.setFocusPainted(false);
-        ResolutionButt.setPreferredSize(new Dimension(250,60));
-        ResolutionButt.setFont(myFont);
-        ResolutionButt.addActionListener(_ -> {
-            mainpanel.removeAll();
-            System.out.println("pressed resolution");
-            mainpanel.add(new ResolutionTracking());
-            mainpanel.revalidate();
-            mainpanel.repaint();
-        });
-
-        OrdinanceButt.setBorder(BorderFactory.createRaisedBevelBorder());
-        OrdinanceButt.setFocusPainted(false);
-        OrdinanceButt.setPreferredSize(new Dimension(250,60));
-        OrdinanceButt.setFont(myFont);
-        OrdinanceButt.addActionListener(_ -> {
-            mainpanel.removeAll();
-            System.out.println("pressed ordinance");
-            mainpanel.add(new OrdinanceTracking());
-            mainpanel.revalidate();
-            mainpanel.repaint();
+            if (inputDialog != null && !inputDialog.trim().isEmpty()) {
+                try (BufferedWriter bw = new BufferedWriter(new FileWriter("src/Main/region.dat"))) {
+                    bw.write(inputDialog);
+                    regionTextArea.setText(inputDialog);
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(this, "Failed to save region: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
         });
 
         lefttoppanel.add(RBIButt);
-        lefttoppanel.add(SuppliesButt);
-        lefttoppanel.add(EquipmentButt);
-        lefttoppanel.add(ResolutionButt);
-        lefttoppanel.add(OrdinanceButt);
+        lefttoppanel.add(DashButt);
+        leftbotpanel.add(setRegionButt);
     }
+
+    private void setRegionText() {
+        regionTextArea.setFont(myFont);
+        regionTextArea.setForeground(color3);
+
+        if (!region.exists()) {
+            regionTextArea.setText("Region: None");
+            return;
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(region))) {
+            String line = br.readLine();
+            if (line != null) {
+                regionTextArea.setText(line);
+            } else {
+                regionTextArea.setText("Region: None");
+            }
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error reading region file: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            regionTextArea.setText("Region: Error");
+        }
+    }
+
     private void setPanelSize(){
         Dimension newsize = screenSize.getNewSize();
         setMinimumSize(newsize);
