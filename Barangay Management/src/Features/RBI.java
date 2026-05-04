@@ -9,10 +9,8 @@ import java.util.function.BiConsumer;
 
 public class RBI extends JPanel {
 
-    // --- Configuration ---
     private static final String DATA_FILE = "src/RBI/RBIdata.dat";
 
-    // --- UI Components ---
     private Color color1 = new Color(204, 218, 227);
     private Color listBgColor = Color.WHITE;
     private Font titleFont = new Font("Arial", Font.BOLD, 40);
@@ -29,7 +27,7 @@ public class RBI extends JPanel {
     private JButton btnRefresh;
 
     private JPanel formPanel;
-    private JScrollPane formScrollPane; // New scroll pane for the form
+    private JScrollPane formScrollPane;
 
     // Personal Info
     private JTextField tfFirstName, tfMiddleName, tfLastName, tfExtensionName;
@@ -70,7 +68,8 @@ public class RBI extends JPanel {
         listPanel = new JPanel(new BorderLayout());
         listPanel.setBackground(color1);
 
-        JLabel title = new JLabel("<html><center>Residence of<br>Barangay Inhabitants</center></html>");
+        JLabel title = new JLabel("<html><center>Barangay Inhabitant<br>" +
+                                    "Profiling System</center></html>");
         title.setFont(titleFont);
         title.setHorizontalAlignment(SwingConstants.CENTER);
         title.setPreferredSize(new Dimension(0, 100));
@@ -89,7 +88,7 @@ public class RBI extends JPanel {
         residenceList.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         residenceList.setBackground(listBgColor);
 
-        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 10));
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         btnPanel.setBackground(color1);
 
         btnNewResidence = new JButton("New Resident");
@@ -165,20 +164,13 @@ public class RBI extends JPanel {
             gbc.gridy++;
         };
 
-        // --- HEADER: LOCATION ---
+        // --- HEADER: PERSONAL INFO ---
         gbc.gridy = 0;
         gbc.gridwidth = 2;
-        JLabel locHeader = new JLabel("<html><b>Location Information</b></html>");
-        locHeader.setFont(new Font("Arial", Font.BOLD, 16));
-        formPanel.add(locHeader, gbc);
-        gbc.gridy++;
-        gbc.gridwidth = 1;
-
-        // --- HEADER: PERSONAL INFO ---
-        gbc.gridy++;
         JLabel persHeader = new JLabel("<html><b>Personal Information</b></html>");
         persHeader.setFont(new Font("Arial", Font.BOLD, 16));
         formPanel.add(persHeader, gbc);
+        gbc.gridwidth = 1;
         gbc.gridy++;
 
         tfFirstName = new JTextField();

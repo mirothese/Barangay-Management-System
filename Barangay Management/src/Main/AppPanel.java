@@ -5,8 +5,6 @@ import javax.swing.*;
 import Features.*;
 import Source.*;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.JPanel;
 
@@ -18,7 +16,7 @@ public class AppPanel extends JPanel {
     //Get image iconMenu.png
     public ImageIcon iconImage = new ImageIcon("iconMenu.png");
 
-    public Font myFont = new Font("Arial", Font.BOLD, 18);
+    public Font myFont = new Font("Arial", Font.PLAIN, 18);
     public Font menuFont = new Font("Arial", Font.BOLD, 30);
 
     public Color color1 = new Color(204, 218, 227);
@@ -42,11 +40,10 @@ public class AppPanel extends JPanel {
     public JLabel menuTitle = new JLabel(
             "<html><center><br><br>Barangay<br>Information<br>" +
                     "Management<br>" +
-                    "System</center></html>");
+                    "System<br></center></html>");
     public JButton RBIButt = new JButton(
-            "<html><center>Records of<br>" +
-                    "Barangay<br>" +
-                    "Inhabitants</center></html>");
+            "<html><center>Barangay Inhabitant<br>" +
+                    "Profiling System</center></html>");
     public JButton DashButt = new JButton(
             "<html><center>Dashboard</center></html>");
 
@@ -88,7 +85,8 @@ public class AppPanel extends JPanel {
         menuTitle.setForeground(color3);
 
         lefttoppanel.add(menuTitle);
-        lefttoppanel.add(Box.createVerticalStrut(140)); // Adjusted strut for new layout
+
+        lefttoppanel.add(Box.createVerticalStrut(300)); // Adjusted strut for new layout
 
         //Style the location labels
         styleLocationLabel(provinceLabel);
@@ -100,8 +98,8 @@ public class AppPanel extends JPanel {
         cityLabel.setPreferredSize(new Dimension(200,30));
         barangayLabel.setPreferredSize(new Dimension(200,30));
 
-        leftbotpanel.add(cityLabel);
         leftbotpanel.add(provinceLabel);
+        leftbotpanel.add(cityLabel);
         leftbotpanel.add(barangayLabel);
 
         //Display iconImage in large area
@@ -125,7 +123,7 @@ public class AppPanel extends JPanel {
         RBIButt.setFocusPainted(false);
         RBIButt.setPreferredSize(new Dimension(250, 80));
         RBIButt.setFont(myFont);
-        RBIButt.addActionListener(_ -> {
+        RBIButt.addActionListener( _ -> {
             mainpanel.removeAll();
             System.out.println("pressed RBI");
             mainpanel.add(new RBI());
@@ -136,7 +134,7 @@ public class AppPanel extends JPanel {
         DashButt.setBackground(color3);
         DashButt.setBorder(BorderFactory.createRaisedBevelBorder());
         DashButt.setFocusPainted(false);
-        DashButt.setPreferredSize(new Dimension(250, 40));
+        DashButt.setPreferredSize(new Dimension(250, 50));
         DashButt.setFont(myFont);
         DashButt.addActionListener(_ -> {
             mainpanel.removeAll();
@@ -189,9 +187,9 @@ public class AppPanel extends JPanel {
     private void updateLabels(String p, String c, String b) {
         // .trim() removes after and before spaces
         // .isEmpty() returns true if empty
-        provinceLabel.setText("Province: " + (p.trim().isEmpty() ? "None" : p.trim()) + "\n");
-        cityLabel.setText("City/Mun: " + (c.trim().isEmpty() ? "None" : c.trim()) + "\n");
-        barangayLabel.setText("Barangay: " + (b.trim().isEmpty() ? "None" : b.trim()) + "\n");
+        provinceLabel.setText("Province: " + (p.trim().isEmpty() ? "None" : p.trim()));
+        cityLabel.setText("City/Mun: " + (c.trim().isEmpty() ? "None" : c.trim()));
+        barangayLabel.setText("Barangay: " + (b.trim().isEmpty() ? "None" : b.trim()));
     }
 
     private void saveLocationData(String province, String city, String barangay) {
