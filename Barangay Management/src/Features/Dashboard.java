@@ -10,6 +10,9 @@ public class Dashboard extends JPanel {
 
     private static final String DATA_FILE = "src/RBI/RBIdata.dat";
 
+    private Font titleFont = new Font("Segoe UI", Font.BOLD, 40);
+    private JLabel title = new JLabel("Dashboard Overview");
+
     // Colors
     private static final Color BG_COLOR = new Color(245, 249, 252);
     private static final Color CARD_BG = Color.WHITE;
@@ -31,6 +34,7 @@ public class Dashboard extends JPanel {
     private JPanel chartsPanel;
     private JPanel sectorChartPanel;
     private JPanel genderChartPanel;
+    private JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
     public Dashboard() {
         setLayout(new BorderLayout(15, 15));
@@ -55,7 +59,12 @@ public class Dashboard extends JPanel {
         addStatsCard("Females", "0");
         addStatsCard("Registered Voters", "0");
 
-        add(statsPanel, BorderLayout.NORTH);
+        title.setFont(titleFont);
+        titlePanel.setBackground(Color.WHITE);
+        titlePanel.add(title);
+
+        add(titlePanel, BorderLayout.NORTH);
+        add(statsPanel, BorderLayout.CENTER);
 
         // --- Charts Area ---
         chartsPanel = new JPanel(new GridLayout(1, 2, 20, 20));
@@ -67,10 +76,13 @@ public class Dashboard extends JPanel {
         sectorChartPanel = createCustomChartPanel("Sectoral Groups", BAR_COLOR_1, emptyMap);
         genderChartPanel = createCustomChartPanel("Gender Distribution", BAR_COLOR_1, emptyMap);
 
+        sectorChartPanel.setBackground(Color.WHITE);
+        genderChartPanel.setBackground(Color.WHITE);
+
         chartsPanel.add(sectorChartPanel);
         chartsPanel.add(genderChartPanel);
 
-        add(chartsPanel, BorderLayout.CENTER);
+        add(chartsPanel, BorderLayout.SOUTH);
 
         // Load data
         refreshData();

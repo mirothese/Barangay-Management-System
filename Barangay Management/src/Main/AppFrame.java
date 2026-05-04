@@ -10,7 +10,7 @@ public class AppFrame {
 
     public AppFrame(AppPanel apppanel){
 
-        JFrame jframe = new JFrame("Barangay Management");
+        JFrame jframe = new JFrame("Barangay Information Management System (ver. 2026.05.01)");
 
         jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jframe.add(apppanel);

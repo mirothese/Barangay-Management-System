@@ -13,9 +13,6 @@ public class AppPanel extends JPanel {
     //Get current device screensize
     public ScreenSize screenSize = new ScreenSize();
 
-    //Get image iconMenu.png
-    public ImageIcon iconImage = new ImageIcon("iconMenu.png");
-
     public Font myFont = new Font("Arial", Font.PLAIN, 18);
     public Font menuFont = new Font("Arial", Font.BOLD, 30);
 
@@ -41,9 +38,9 @@ public class AppPanel extends JPanel {
             "<html><center><br><br>Barangay<br>Information<br>" +
                     "Management<br>" +
                     "System<br></center></html>");
-    public JButton RBIButt = new JButton(
+    public JButton AddButt = new JButton(
             "<html><center>Barangay Inhabitant<br>" +
-                    "Profiling System</center></html>");
+                                "Profiling Database</center></html>");
     public JButton DashButt = new JButton(
             "<html><center>Dashboard</center></html>");
 
@@ -102,14 +99,12 @@ public class AppPanel extends JPanel {
         leftbotpanel.add(cityLabel);
         leftbotpanel.add(barangayLabel);
 
-        //Display iconImage in large area
-        iconMenu.setIcon(iconImage);
-
         mainpanelText.setBackground(color1);
         mainpanelText.add(iconMenu);
 
         mainpanel.setLayout(new BorderLayout());
         mainpanel.add(mainpanelText, BorderLayout.CENTER);
+        mainpanel.add(new Dashboard());
     }
 
     private void styleLocationLabel(JLabel label) {
@@ -118,12 +113,12 @@ public class AppPanel extends JPanel {
     }
 
     public void AppLeftButtons() {
-        RBIButt.setBackground(color3);
-        RBIButt.setBorder(BorderFactory.createRaisedBevelBorder());
-        RBIButt.setFocusPainted(false);
-        RBIButt.setPreferredSize(new Dimension(250, 80));
-        RBIButt.setFont(myFont);
-        RBIButt.addActionListener( _ -> {
+        AddButt.setBackground(color3);
+        AddButt.setBorder(BorderFactory.createRaisedBevelBorder());
+        AddButt.setFocusPainted(false);
+        AddButt.setPreferredSize(new Dimension(250, 80));
+        AddButt.setFont(myFont);
+        AddButt.addActionListener(_ -> {
             mainpanel.removeAll();
             System.out.println("pressed RBI");
             mainpanel.add(new RBI());
@@ -153,8 +148,8 @@ public class AppPanel extends JPanel {
             openLocationDialog();
         });
 
-        lefttoppanel.add(RBIButt);
         lefttoppanel.add(DashButt);
+        lefttoppanel.add(AddButt);
         leftbotpanel.add(setLocButt);
     }
 
