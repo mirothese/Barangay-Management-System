@@ -4,6 +4,8 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.function.BiConsumer;
 
@@ -20,8 +22,12 @@ public class RBI extends JPanel {
     private JPanel cardContainer;
     private CardLayout cardLayout;
     private JPanel listPanel;
-    private JTextArea residences;
-    private JScrollPane residenceList;
+
+    // Table components
+    private JTable residenceTable;
+    private DefaultTableModel tableModel;
+    private JScrollPane residenceScroll;
+
     private JButton btnNewResidence;
     private JButton btnDeleteResidence;
     private JButton btnRefresh;
@@ -53,10 +59,10 @@ public class RBI extends JPanel {
         cardContainer.setBackground(color1);
 
         buildListPanel();
-        buildFormPanel(); // This now creates the scrollable form
+        buildFormPanel();
 
         cardContainer.add(listPanel, "LIST");
-        cardContainer.add(formScrollPane, "FORM"); // Add the scroll pane, not the raw panel
+        cardContainer.add(formScrollPane, "FORM");
 
         setLayout(new BorderLayout());
         add(cardContainer, BorderLayout.CENTER);
@@ -69,24 +75,68 @@ public class RBI extends JPanel {
         listPanel.setBackground(color1);
 
         JLabel title = new JLabel("<html><center>Barangay Inhabitant<br>" +
-                                    "Profiling System</center></html>");
+                "Profiling System</center></html>");
         title.setFont(titleFont);
         title.setHorizontalAlignment(SwingConstants.CENTER);
         title.setPreferredSize(new Dimension(0, 100));
         title.setOpaque(true);
         title.setBackground(color1);
 
-        residences = new JTextArea();
-        residences.setFont(new Font("Arial", Font.PLAIN, 12));
-        residences.setLineWrap(true);
-        residences.setEditable(false);
-        residences.setOpaque(true);
-        residences.setBackground(listBgColor);
-        residences.setForeground(Color.BLACK);
+        // --- TABLE SETUP ---
+        String[] columns = {"First Name", "Last Name", "Sex", "Civil Status", "Address", "Contact Number"};
+        tableModel = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // Read-only table
+            }
+        };
 
-        residenceList = new JScrollPane(residences);
-        residenceList.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
-        residenceList.setBackground(listBgColor);
+        residenceTable = new JTable(tableModel);
+
+        // CRITICAL CHANGES FOR FILLING SPACE:
+        // 1. Disable auto-resize to allow manual control or full-width distribution
+        residenceTable.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+        // OR use AUTO_RESIZE_ALL_COLUMNS to force equal width, but SUBSEQUENT is usually better for dynamic data
+
+        // 2. Ensure the table fills the viewport height
+        residenceTable.setFillsViewportHeight(true);
+
+        // 3. Set row height for readability
+        residenceTable.setRowHeight(32);
+
+        // Styling
+        residenceTable.setFont(new Font("Arial", Font.PLAIN, 12));
+        residenceTable.getTableHeader().setFont(new Font("Arial", Font.BOLD, 12));
+        residenceTable.setSelectionBackground(new Color(180, 210, 255));
+
+        // Center align specific columns
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        residenceTable.getColumnModel().getColumn(2).setCellRenderer(centerRenderer); // Sex
+        residenceTable.getColumnModel().getColumn(3).setCellRenderer(centerRenderer); // Civil Status
+
+        // Optional: Add a component listener to resize columns when the panel is resized
+        residenceTable.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                int width = residenceTable.getWidth();
+                int columnCount = residenceTable.getColumnCount();
+                int colWidth = width / columnCount;
+
+                // Set all columns to equal width (optional, remove if you prefer variable widths)
+                for (int i = 0; i < columnCount; i++) {
+                    residenceTable.getColumnModel().getColumn(i).setWidth(colWidth);
+                    residenceTable.getColumnModel().getColumn(i).setPreferredWidth(colWidth);
+                }
+            }
+        });
+
+        residenceScroll = new JScrollPane(residenceTable);
+        residenceScroll.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        residenceScroll.setBackground(listBgColor);
+        // Ensure scroll pane fills the remaining space in the BorderLayout
+        residenceScroll.setPreferredSize(new Dimension(0, 0));
+        // --- END TABLE SETUP ---
 
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         btnPanel.setBackground(color1);
@@ -99,7 +149,6 @@ public class RBI extends JPanel {
         btnNewResidence.setPreferredSize(new Dimension(200, 50));
         btnNewResidence.addActionListener(e -> {
             cardLayout.show(cardContainer, "FORM");
-            // Reset scroll position when opening form
             formScrollPane.getVerticalScrollBar().setValue(0);
             cardContainer.revalidate();
             cardContainer.repaint();
@@ -127,14 +176,12 @@ public class RBI extends JPanel {
         btnPanel.add(btnRefresh);
 
         listPanel.add(title, BorderLayout.NORTH);
-        listPanel.add(residenceList, BorderLayout.CENTER);
+        listPanel.add(residenceScroll, BorderLayout.CENTER);
         listPanel.add(btnPanel, BorderLayout.SOUTH);
     }
-
     private void buildFormPanel() {
         formPanel = new JPanel(new GridBagLayout());
         formPanel.setBackground(color1);
-        // Set a minimum width to ensure layout is consistent
         formPanel.setPreferredSize(new Dimension(650, 1200));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
@@ -142,7 +189,6 @@ public class RBI extends JPanel {
         gbc.gridx = 0;
         gbc.gridy = 0;
 
-        // Helper to add label + field
         BiConsumer<String, Component> addComponent = (labelText, comp) -> {
             JLabel label = new JLabel(labelText + ":");
             label.setFont(labelFont);
@@ -154,7 +200,6 @@ public class RBI extends JPanel {
                 ((JTextField) comp).setFont(inputFont);
                 ((JTextField) comp).setPreferredSize(new Dimension(300, 30));
             }
-            // For JComboBox, set preferred size if needed, but usually it adapts
             if (comp instanceof JComboBox) {
                 ((JComboBox<?>) comp).setFont(inputFont);
             }
@@ -164,7 +209,7 @@ public class RBI extends JPanel {
             gbc.gridy++;
         };
 
-        // --- HEADER: PERSONAL INFO ---
+        // --- PERSONAL INFO ---
         gbc.gridy = 0;
         gbc.gridwidth = 2;
         JLabel persHeader = new JLabel("<html><b>Personal Information</b></html>");
@@ -177,10 +222,8 @@ public class RBI extends JPanel {
         tfMiddleName = new JTextField();
         tfLastName = new JTextField();
         tfExtensionName = new JTextField();
-
         cbSex = new JComboBox<>(new String[]{"MALE", "FEMALE"});
         cbCivilStatus = new JComboBox<>(new String[]{"SINGLE", "MARRIED", "WIDOW/ER", "SEPARATED", "SIDECHICK"});
-
         tfBirthDate = new JTextField();
         tfPlaceOfBirth = new JTextField();
 
@@ -193,7 +236,7 @@ public class RBI extends JPanel {
         addComponent.accept("Date of Birth", tfBirthDate);
         addComponent.accept("Place of Birth", tfPlaceOfBirth);
 
-        // --- HEADER: IDENTITY INFO ---
+        // --- IDENTITY INFO ---
         gbc.gridy++;
         JLabel idHeader = new JLabel("<html><b>Identity Information</b></html>");
         idHeader.setFont(new Font("Arial", Font.BOLD, 16));
@@ -204,7 +247,6 @@ public class RBI extends JPanel {
         tfCitizenship = new JTextField();
         tfOccupation = new JTextField();
         tfReligion = new JTextField();
-
         String[] sectors = {"None", "Solo Parent", "OFW", "PWD", "OSC", "OSY", "Unemployed", "Labor Force", "ISY", "4Ps", "Senior Citizen"};
         cbSectoralGroup = new JComboBox<>(sectors);
 
@@ -214,7 +256,7 @@ public class RBI extends JPanel {
         addComponent.accept("Religion", tfReligion);
         addComponent.accept("Sectoral Group", cbSectoralGroup);
 
-        // --- HEADER: CONTACT INFO ---
+        // --- CONTACT INFO ---
         gbc.gridy++;
         JLabel conHeader = new JLabel("<html><b>Contact Information</b></html>");
         conHeader.setFont(new Font("Arial", Font.BOLD, 16));
@@ -255,14 +297,12 @@ public class RBI extends JPanel {
 
         btnRow.add(btnSave);
         btnRow.add(btnCancel);
-
         formPanel.add(btnRow, gbc);
 
-        // Wrap formPanel in a JScrollPane
         formScrollPane = new JScrollPane(formPanel);
         formScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         formScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        formScrollPane.setBorder(BorderFactory.createEmptyBorder()); // Remove border for cleaner look
+        formScrollPane.setBorder(BorderFactory.createEmptyBorder());
         formScrollPane.setBackground(color1);
     }
 
@@ -281,7 +321,6 @@ public class RBI extends JPanel {
                 }
             };
 
-            // Personal
             writeField.accept("First Name", tfFirstName.getText());
             writeField.accept("Middle Name", tfMiddleName.getText());
             writeField.accept("Last Name", tfLastName.getText());
@@ -290,15 +329,11 @@ public class RBI extends JPanel {
             writeField.accept("Civil Status", (String) cbCivilStatus.getSelectedItem());
             writeField.accept("Date of Birth", tfBirthDate.getText());
             writeField.accept("Place of Birth", tfPlaceOfBirth.getText());
-
-            // Identity
             writeField.accept("Resident Voter", (String) cbResidentVoter.getSelectedItem());
             writeField.accept("Citizenship", tfCitizenship.getText());
             writeField.accept("Occupation", tfOccupation.getText());
             writeField.accept("Religion", tfReligion.getText());
             writeField.accept("Sectoral Group", (String) cbSectoralGroup.getSelectedItem());
-
-            // Contact
             writeField.accept("Email", tfEmail.getText());
             writeField.accept("Phone Number", tfContact.getText());
             writeField.accept("House No.", tfHouseNo.getText());
@@ -339,20 +374,17 @@ public class RBI extends JPanel {
         String fullRecord = "";
         boolean found = false;
 
-        // 1. Read file to find the block to delete
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             boolean collecting = false;
             StringBuilder block = new StringBuilder();
 
             while ((line = reader.readLine()) != null) {
-                // Check if line starts with "First Name" and contains the target name
                 if (line.startsWith("First Name") && line.contains(nameToDelete)) {
                     collecting = true;
                     block.append(line).append("\n");
                 } else if (collecting) {
                     block.append(line).append("\n");
-                    // FIX: Trim the line to remove any accidental trailing spaces/newlines
                     if (line.trim().equals("--------------------------------------------------")) {
                         found = true;
                         fullRecord = block.toString();
@@ -372,7 +404,6 @@ public class RBI extends JPanel {
 
         if (JOptionPane.showConfirmDialog(this, "Delete this record?\n" + fullRecord, "Confirm Deletion", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) return;
 
-        // 2. Rewrite the file, skipping the found block
         try {
             List<String> allLines = new ArrayList<>();
             try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
@@ -386,41 +417,30 @@ public class RBI extends JPanel {
             boolean skipMode = false;
 
             for (String line : allLines) {
-                // If we are currently skipping a block
                 if (skipMode) {
-                    // FIX: Trim the line to check for separator safely
                     if (line.trim().equals("--------------------------------------------------")) {
                         skipMode = false;
-                        // Do NOT add the separator line to the new list
                         continue;
                     }
-                    // If still skipping, do not add the line
                     continue;
                 }
 
-                // Check if this line starts the block to delete
                 if (line.startsWith("First Name") && line.contains(nameToDelete)) {
                     skipMode = true;
-                    continue; // Skip this line too
+                    continue;
                 }
 
-                // If not skipping, add to new list
                 newLines.add(line);
             }
 
-            // Write the clean list back
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(DATA_FILE))) {
                 for (String l : newLines) {
                     writer.write(l);
                     writer.newLine();
                 }
-                // Explicitly flush and close (handled by try-with-resources, but good to be sure)
-                writer.flush();
             }
 
-            // CRITICAL: Force the UI to reload immediately
             updateResidenceLists();
-
             JOptionPane.showMessageDialog(this, "Deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
 
         } catch (IOException e) {
@@ -430,48 +450,95 @@ public class RBI extends JPanel {
     }
 
     public void updateResidenceLists() {
-        residences.setText("");
+        tableModel.setRowCount(0); // Clear existing rows
         File file = new File(DATA_FILE);
 
         if (!file.exists()) {
-            residences.setText("No records found.");
             return;
         }
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
+            String firstName = "", lastName = "", sex = "", civilStatus = "", contact = "";
+            String houseNo = "", street = "", subdivision = "";
+            boolean inRecord = false;
+
             while ((line = reader.readLine()) != null) {
-                residences.append(line + "\n");
+                if (line.startsWith("First Name:")) {
+                    inRecord = true;
+                    firstName = line.replace("First Name:", "").trim();
+                    lastName = ""; sex = ""; civilStatus = ""; contact = "";
+                    houseNo = ""; street = "";                     subdivision = "";
+                } else if (inRecord) {
+                    if (line.startsWith("Last Name:")) {
+                        lastName = line.replace("Last Name:", "").trim();
+                    } else if (line.startsWith("Sex:")) {
+                        sex = line.replace("Sex:", "").trim();
+                    } else if (line.startsWith("Civil Status:")) {
+                        civilStatus = line.replace("Civil Status:", "").trim();
+                    } else if (line.startsWith("House No.")) {
+                        houseNo = line.replace("House No.:", "").trim();
+                    } else if (line.startsWith("Street Name:")) {
+                        street = line.replace("Street Name:", "").trim();
+                    } else if (line.startsWith("Subdivision/Zone")) {
+                        subdivision = line.replace("Subdivision/Zone:", "").trim();
+                    } else if (line.startsWith("Phone Number:")) {
+                        contact = line.replace("Phone Number:", "").trim();
+                    } else if (line.trim().equals("--------------------------------------------------")) {
+                        // End of record reached, build the address and add row
+                        StringBuilder sb = new StringBuilder();
+                        if (!houseNo.isEmpty()) sb.append(houseNo);
+                        if (!street.isEmpty()) {
+                            if (sb.length() > 0) sb.append(", ");
+                            sb.append(street);
+                        }
+                        if (!subdivision.isEmpty()) {
+                            if (sb.length() > 0) sb.append(", ");
+                            sb.append(subdivision);
+                        }
+
+                        String fullAddress = sb.toString();
+                        if (fullAddress.isEmpty()) fullAddress = "N/A";
+
+                        // Add row to table
+                        // Columns: First Name, Last Name, Sex, Civil Status, Address, Contact
+                        tableModel.addRow(new String[]{
+                                firstName,
+                                lastName,
+                                sex,
+                                civilStatus,
+                                fullAddress,
+                                contact
+                        });
+
+                        // Reset flags
+                        inRecord = false;
+                        firstName = "";
+                    }
+                }
             }
         } catch (IOException e) {
-            residences.setText("Error reading file.\n" + e.getMessage());
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error reading data file.", "Error", JOptionPane.ERROR_MESSAGE);
         }
-
-        residences.setCaretPosition(0);
-        residences.revalidate();
-        residences.repaint();
     }
 
     private void clearForm() {
-
-        // Personal Info
         tfFirstName.setText("");
         tfMiddleName.setText("");
         tfLastName.setText("");
         tfExtensionName.setText("");
-        cbSex.setSelectedIndex(0); // MALE
-        cbCivilStatus.setSelectedIndex(0); // SINGLE
+        cbSex.setSelectedIndex(0);
+        cbCivilStatus.setSelectedIndex(0);
         tfBirthDate.setText("");
         tfPlaceOfBirth.setText("");
 
-        // Identity
-        cbResidentVoter.setSelectedIndex(0); // YES
+        cbResidentVoter.setSelectedIndex(0);
         tfCitizenship.setText("");
         tfOccupation.setText("");
         tfReligion.setText("");
-        cbSectoralGroup.setSelectedIndex(0); // None
+        cbSectoralGroup.setSelectedIndex(0);
 
-        // Contact
         tfEmail.setText("");
         tfContact.setText("");
         tfHouseNo.setText("");
