@@ -202,6 +202,8 @@ public class Dashboard extends JPanel {
     
     public void refreshData() {
         System.out.println("=== REFRESHING DASHBOARD ===");
+
+        dao.reloadFromDisk();
         
         int total = dao.getTotalResidents();
         int nonResidents = dao.getNonResidentCount();
@@ -232,6 +234,11 @@ public class Dashboard extends JPanel {
                 }
             }
         }
+        
+        statsPanel.revalidate();
+        statsPanel.repaint();
+        chartsPanel.revalidate();
+        chartsPanel.repaint();
         
         System.out.println("=== DASHBOARD UPDATED ===");
     }

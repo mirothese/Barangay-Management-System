@@ -380,7 +380,7 @@ public class ResidentPanel extends JPanel {
     private void createFormDialog(String title) {
         formDialog = new JDialog();
         formDialog.setTitle(title);
-        formDialog.setSize(850, 950);
+        formDialog.setSize(850, 750);
         formDialog.setLocationRelativeTo(this);
         formDialog.setLayout(new BorderLayout());
         formDialog.setModal(true);
